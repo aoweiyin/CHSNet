@@ -105,7 +105,7 @@ class FSCData(data.Dataset):
             ratio = (raw_size[0]*raw_size[1])/(wd*ht)
             dmap = dmap * ratio
 
-        # random crop augmentation ## need more infor?????
+        # random crop augmentation ## make image's size the same
         hi, wi, h, w = random_crop(ht, wd, self.c_size, self.c_size)
         img = img.crop((wi, hi, wi+w, hi+h))
         dmap = dmap[hi:hi+h, wi:wi+w]

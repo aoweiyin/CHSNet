@@ -80,7 +80,7 @@ class TransformerEncoderLayer(nn.Module):
     def forward(self, src, shape, pos: Optional[Tensor] = None):
         q = k = self.with_pos_embed(src, pos)  # src: hw b c
         src2 = self.self_attn(q, k, shape, src)
-        src = src + self.dropout1(src2)
+        src = src + self.dropout1(src2) # Res？
         src = self.norm1(src)
         src2 = self.linear2(self.dropout(self.activation(self.linear1(src))))
         src = src + self.dropout2(src2)

@@ -43,7 +43,8 @@ class FSCTrainer(Trainer):
         train_dataloaders = DataLoader(train_datasets,
                                        collate_fn=train_collate,
                                        batch_size=args.batch_size,
-                                       shuffle=True,
+                                    #    shuffle=True,
+                                       shuffle=False,
                                        num_workers=args.num_workers,
                                        pin_memory=True)
         val_datasets = FSCData(args.data_dir, method='test')
@@ -106,10 +107,16 @@ class FSCTrainer(Trainer):
         for inputs, targets, ex_list in tqdm(self.dataloaders['train']):
             inputs = inputs.to(self.device)
             targets = targets.to(self.device) * self.args.log_param
+            # for idx, ex in enumerate(ex_list):
+            #     for jdx, exj in enumerate(ex):
+            #         print("ex's Shape: ", exj.shape) # each bbox has different size
 
             with torch.set_grad_enabled(True):
                 et_dmaps = self.model(inputs)
+                # print("Shape1: ", et_dmaps.shape) ##torch.Size([8, 1, 48, 48])
+                # print("Shape2: ", targets.shape) ##torch.Size([8, 1, 384, 384])
                 loss = self.criterion(et_dmaps, targets)
+                # loss is for regression for dmaps
 
                 self.optimizer.zero_grad()
                 loss.backward()
@@ -118,7 +125,8 @@ class FSCTrainer(Trainer):
                 N = inputs.size(0)
                 pre_count = torch.sum(et_dmaps.view(N, -1), dim=1).detach().cpu().numpy()
                 gd_count = torch.sum(targets.view(N, -1), dim=1).detach().cpu().numpy()
-                res = pre_count - gd_count
+                res = pre_count - gd_count 
+                # res is for counting loss
                 epoch_loss.update(loss.item(), N)
                 epoch_mse.update(np.mean(res * res), N)
                 epoch_mae.update(np.mean(abs(res)), N)

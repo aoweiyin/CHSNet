@@ -33,6 +33,10 @@ class VGG16Trans(nn.Module):
         self.tran_decoder = Transformer(layers=4)
         self.tran_decoder_p2 = OutputNet(dim=512)
 
+        # self.output_bbox = nn.Sequential(
+
+        # )
+        
         # self.conv_decoder = nn.Sequential(
         #     ConvBlock(512, 512, 3, d_rate=2),
         #     ConvBlock(512, 512, 3, d_rate=2),
@@ -42,7 +46,8 @@ class VGG16Trans(nn.Module):
         # self.conv_decoder_p2 = OutputNet(dim=512)
 
         self._initialize_weights()
-        if not load_weights:
+        if not load_weights: 
+        # load the trained parameters from pretrained VGG16 model into self.encoder
             if batch_norm:
                 mod = torchvision.models.vgg16_bn(pretrained=True)
             else:
