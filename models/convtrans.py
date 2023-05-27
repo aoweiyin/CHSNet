@@ -69,13 +69,21 @@ class VGG16Trans(nn.Module):
                 nn.init.constant_(m.weight, 1)
                 nn.init.constant_(m.bias, 0)
 
-    def forward(self, x):
+    def forward(self, x, ex):
         raw_x = self.encoder(x)
+        raw_ex = self.encoder(ex)
         bs, c, h, w = raw_x.shape
+        ebs, ec, eh, ew = raw_ex.shape
+        # print(" >>>>> Shape_x: ", raw_x.shape) #Shape_x:  torch.Size([8, 512, 24, 24]) from[384, 384]
+        # print(" >>>>> Shape_ex: ", raw_ex.shape) #Shape_ex:  torch.Size([8, 512, 6, 6]) from [96, 96]
 
         # path-transformer
         x = raw_x.flatten(2).permute(2, 0, 1)  # -> bs c hw -> hw b c
+        ex = raw_ex.flatten(2).permute(2, 0, 1)  # -> bs c hw -> hw b c
         x = self.tran_decoder(x, (h, w))
+        ex = self.tran_decoder(ex, (eh, ew))
+        print(" >>>>> Shape_xx: ", x.shape) #Shape_x:  torch.Size([8, 512, 24, 24]) from[384, 384]
+        print(" >>>>> Shape_exx: ", ex.shape) #Shape_ex:  torch.Size([8, 512, 6, 6]) from [96, 96]
         x = x.permute(1, 2, 0).view(bs, c, h, w)
         x = nn.functional.interpolate(x, scale_factor=self.scale_factor, mode='bicubic', align_corners=True)
         y = self.tran_decoder_p2(x)

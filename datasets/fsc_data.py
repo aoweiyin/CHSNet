@@ -46,6 +46,11 @@ class FSCData(data.Dataset):
             transforms.Normalize([0.485, 0.456, 0.406], [0.229, 0.224, 0.225])
         ])
         self.trans_dmap = transforms.ToTensor()
+        self.trans_ex = transforms.Compose([
+            transforms.ToTensor(),
+            transforms.Resize([96, 96], antialias=True),
+            transforms.Normalize([0.485, 0.456, 0.406], [0.229, 0.224, 0.225])
+        ])
 
     def __len__(self):
         return len(self.im_ids)
@@ -117,7 +122,8 @@ class FSCData(data.Dataset):
 
         dmap = Image.fromarray(dmap)
 
-        return self.trans_img(img), self.trans_dmap(dmap), [self.trans_img(ex) for ex in examplars]
+        # return self.trans_img(img), self.trans_dmap(dmap), [self.trans_img(ex) for ex in examplars]
+        return self.trans_img(img), self.trans_dmap(dmap), self.trans_ex(examplars[0])
         # return img, dmap, examplars
     
     def val_transform(self, sample):
@@ -131,6 +137,7 @@ class FSCData(data.Dataset):
 
         img = self.trans_img(img)
         count = np.sum(dmap)
-        return img, count, [self.trans_img(ex) for ex in examplars], name
+        # return img, count, [self.trans_img(ex) for ex in examplars], name
+        return img, count, self.trans_ex(examplars[0]), name
     
 
