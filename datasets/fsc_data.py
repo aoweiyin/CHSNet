@@ -94,7 +94,14 @@ class FSCData(data.Dataset):
         examplars = []
         rects = rects.astype(np.int)
         for y1, x1, y2, x2 in rects:
-            tmp_ex = img.crop((x1, y1, x2, y2))
+            # make it a square
+            max_leng = max(x2-x1, y2-y1)
+            new_x1 = x1 + (x2-x1)*0.5 - max_leng*0.5
+            new_y1 = y1 + (y2-y1)*0.5 - max_leng*0.5
+            new_x2 = new_x1 + max_leng - 1
+            new_y2 = new_y1 + max_leng - 1
+            tmp_ex = img.crop((new_x1, new_y1, new_x2, new_y2))
+            # tmp_ex = img.crop((x1, y1, x2, y2))
             examplars.append(tmp_ex)
 
         # rescale augmentation
