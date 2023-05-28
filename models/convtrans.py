@@ -79,21 +79,21 @@ class VGG16Trans(nn.Module):
 
     def forward(self, x, ex):
         raw_x = self.encoder(x)
-        # raw_ex = self.encoder(ex) #bbox
-        # raw_ex = self.conv_bbox(raw_ex) #bbox
+        raw_ex = self.encoder(ex) #bbox
+        raw_ex = self.conv_bbox(raw_ex) #bbox
         bs, c, h, w = raw_x.shape
-        # ebs, ec, eh, ew = raw_ex.shape #bbox
+        ebs, ec, eh, ew = raw_ex.shape #bbox
         # print(" >>>>> Shape_x: ", raw_x.shape) #Shape_x:  torch.Size([8, 512, 24, 24]) from[384, 384]
         # print(" >>>>> Shape_ex: ", raw_ex.shape) #Shape_ex:  torch.Size([8, 512, 6, 6]) from [96, 96]
         #v.2 make it to torch.Size([8, 512, 1, 1])
 
         # path-transformer
         x = raw_x.flatten(2).permute(2, 0, 1)  # -> bs c hw -> hw b c
-        # ex = raw_ex.flatten(2).permute(2, 0, 1) #bbox  # -> bs c hw -> hw b c
+        ex = raw_ex.flatten(2).permute(2, 0, 1) #bbox  # -> bs c hw -> hw b c
         # print(" >>>>> Shape_xx_val: ", x.shape) #Shape_x:  torch.Size([936, 8, 512]) from[384, 384]
         # print(" >>>>> Shape_exx_val: ", ex.shape) #Shape_ex:  torch.Size([36, 8, 512])from [96, 96]
-        # scale_bbox = int(x.shape[0] / ex.shape[0]) #bbox
-        # x = x + ex.repeat(scale_bbox, 1, 1) #bbox
+        scale_bbox = int(x.shape[0] / ex.shape[0]) #bbox
+        x = x + ex.repeat(scale_bbox, 1, 1) #bbox
         x = self.tran_decoder(x, (h, w))
         # ex = self.tran_decoder(ex, (eh, ew))
         # print(" >>>>> Shape_xx: ", x.shape) #Shape_x:  torch.Size([576, 8, 512]) from[384, 384]
