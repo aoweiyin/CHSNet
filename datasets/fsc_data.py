@@ -73,7 +73,11 @@ class FSCData(data.Dataset):
         points = np.array(anno['points'])
 
         try:
-            img = Image.open(img_path).convert('RGB')
+            # img = Image.open(img_path).convert('RGB')
+            img_cv2 = cv2.imread(img_path)
+            kernel = np.array([[-1,-1,-1], [-1,9,-1], [-1,-1,-1]])
+            img_cv2 = cv2.filter2D(img_cv2, -1, kernel)
+            img = Image.fromarray(cv2.cvtColor(img_cv2, cv2.COLOR_BGR2RGB))
             dmap = np.load(gd_path)
             dmap = dmap.astype(np.float32, copy=False)  # np.float64 -> np.float32 to save memory
         except:
