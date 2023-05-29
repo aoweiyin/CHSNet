@@ -140,7 +140,8 @@ class FSCData(data.Dataset):
         dmap = Image.fromarray(dmap)
 
         # return self.trans_img(img), self.trans_dmap(dmap), [self.trans_img(ex) for ex in examplars]
-        return self.trans_img(img), self.trans_dmap(dmap), self.trans_ex(examplars[0])
+        # return self.trans_img(img), self.trans_dmap(dmap), self.trans_ex(examplars[0])
+        return self.trans_img(img), self.trans_dmap(dmap), self.trans_ex(examplars[0]), self.trans_ex(examplars[1]), self.trans_ex(examplars[2])
         # return img, dmap, examplars
     
     def val_transform(self, sample):
@@ -155,6 +156,7 @@ class FSCData(data.Dataset):
         img = self.trans_img(img)
         count = np.sum(dmap)
         # return img, count, [self.trans_img(ex) for ex in examplars], name
-        return img, count, self.trans_ex(examplars[0]), name
+        return img, count, self.trans_ex(examplars[0]), self.trans_ex(examplars[1]), self.trans_ex(examplars[2]), name
+        # return img, count, self.trans_ex(examplars[0]), name
     
 
