@@ -75,8 +75,14 @@ class FSCData(data.Dataset):
         try:
             # img = Image.open(img_path).convert('RGB')
             img_cv2 = cv2.imread(img_path)
-            kernel = np.array([[-1,-1,-1], [-1,9,-1], [-1,-1,-1]])
-            img_cv2 = cv2.filter2D(img_cv2, -1, kernel)
+            # kernel = np.array([[-1,-1,-1], [-1,9,-1], [-1,-1,-1]])
+            # img_cv2 = cv2.filter2D(img_cv2, -1, kernel)
+            kernelx = np.array([[1,1,1],[0,0,0],[-1,-1,-1]])
+            kernely = np.array([[-1,0,1],[-1,0,1],[-1,0,1]])
+            prewittx = cv2.filter2D(img_cv2, -1, kernelx)
+            prewitty = cv2.filter2D(img_cv2, -1, kernely)
+            img_cv2 = cv2.addWeighted(prewittx, 0.5, prewitty, 0.5, 0)
+            
             img = Image.fromarray(cv2.cvtColor(img_cv2, cv2.COLOR_BGR2RGB))
             dmap = np.load(gd_path)
             dmap = dmap.astype(np.float32, copy=False)  # np.float64 -> np.float32 to save memory
