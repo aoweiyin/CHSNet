@@ -77,30 +77,30 @@ class VGG16Trans(nn.Module):
                 nn.init.constant_(m.weight, 1)
                 nn.init.constant_(m.bias, 0)
 
-    def forward(self, x, ex0, ex1, ex2):
-    # def forward(self, x, ex):
+    # def forward(self, x, ex0, ex1, ex2):
+    def forward(self, x, ex0):
         raw_x = self.encoder(x)
-        raw_ex0 = self.encoder(ex0) #bbox
-        raw_ex0 = self.conv_bbox(raw_ex0) #bbox
-        raw_ex1 = self.conv_bbox(self.encoder(ex1)) # bbox-3
-        raw_ex2 = self.conv_bbox(self.encoder(ex2)) # bbox-3
+        # raw_ex0 = self.encoder(ex0) #bbox
+        # raw_ex0 = self.conv_bbox(raw_ex0) #bbox
+        # raw_ex1 = self.conv_bbox(self.encoder(ex1)) # bbox-3
+        # raw_ex2 = self.conv_bbox(self.encoder(ex2)) # bbox-3
         bs, c, h, w = raw_x.shape
-        ebs, ec, eh, ew = raw_ex0.shape #bbox
+        # ebs, ec, eh, ew = raw_ex0.shape #bbox
         # print(" >>>>> Shape_x: ", raw_x.shape) #Shape_x:  torch.Size([8, 512, 24, 24]) from[384, 384]
         # print(" >>>>> Shape_ex: ", raw_ex.shape) #Shape_ex:  torch.Size([8, 512, 6, 6]) from [96, 96]
         #v.2 make it to torch.Size([8, 512, 1, 1])
 
         # path-transformer
         x = raw_x.flatten(2).permute(2, 0, 1)  # -> bs c hw -> hw b c
-        ex0 = raw_ex0.flatten(2).permute(2, 0, 1) #bbox  # -> bs c hw -> hw b c
-        ex1 = raw_ex1.flatten(2).permute(2, 0, 1) #bbox-3  # -> bs c hw -> hw b c
-        ex2 = raw_ex2.flatten(2).permute(2, 0, 1) #bbox-3  # -> bs c hw -> hw b c
+        # ex0 = raw_ex0.flatten(2).permute(2, 0, 1) #bbox  # -> bs c hw -> hw b c
+        # ex1 = raw_ex1.flatten(2).permute(2, 0, 1) #bbox-3  # -> bs c hw -> hw b c
+        # ex2 = raw_ex2.flatten(2).permute(2, 0, 1) #bbox-3  # -> bs c hw -> hw b c
         # print(" >>>>> Shape_xx_val: ", x.shape) #Shape_x:  torch.Size([936, 8, 512]) from[384, 384]
         # print(" >>>>> Shape_exx_val: ", ex.shape) #Shape_ex:  torch.Size([36, 8, 512])from [96, 96]
-        scale_bbox = int(x.shape[0] / ex0.shape[0]) #bbox
-        x = x + ex0.repeat(scale_bbox, 1, 1) #bbox
-        x = x + ex1.repeat(scale_bbox, 1, 1) #bbox-3
-        x = x + ex2.repeat(scale_bbox, 1, 1) #bbox-3
+        # scale_bbox = int(x.shape[0] / ex0.shape[0]) #bbox
+        # x = x + ex0.repeat(scale_bbox, 1, 1) #bbox
+        # x = x + ex1.repeat(scale_bbox, 1, 1) #bbox-3
+        # x = x + ex2.repeat(scale_bbox, 1, 1) #bbox-3
         
         x = self.tran_decoder(x, (h, w))
         # ex = self.tran_decoder(ex, (eh, ew))

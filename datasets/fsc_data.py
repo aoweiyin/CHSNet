@@ -75,16 +75,17 @@ class FSCData(data.Dataset):
         try:
             # img = Image.open(img_path).convert('RGB')
             img_cv2 = cv2.imread(img_path)
-            # kernel = np.array([[-1,-1,-1], [-1,9,-1], [-1,-1,-1]])
-            # img_cv2 = cv2.filter2D(img_cv2, -1, kernel)
-            kernelx = np.array([[1,1,1],[0,0,0],[-1,-1,-1]])
-            kernely = np.array([[-1,0,1],[-1,0,1],[-1,0,1]])
-            prewittx = cv2.filter2D(img_cv2, -1, kernelx)
-            prewitty = cv2.filter2D(img_cv2, -1, kernely)
-            img_cv2 = cv2.addWeighted(prewittx, 0.5, prewitty, 0.5, 0)
+            kernel = np.array([[-1,-1,-1], [-1,9,-1], [-1,-1,-1]])
+            img_cv2 = cv2.filter2D(img_cv2, -1, kernel)
+            # kernelx = np.array([[1,1,1],[0,0,0],[-1,-1,-1]])
+            # kernely = np.array([[-1,0,1],[-1,0,1],[-1,0,1]])
+            # prewittx = cv2.filter2D(img_cv2, -1, kernelx)
+            # prewitty = cv2.filter2D(img_cv2, -1, kernely)
+            # img_cv2 = cv2.addWeighted(prewittx, 0.5, prewitty, 0.5, 0)
             
             img = Image.fromarray(cv2.cvtColor(img_cv2, cv2.COLOR_BGR2RGB))
             dmap = np.load(gd_path)
+            dmap = cv2.filter2D(dmap, -1, kernel)
             dmap = dmap.astype(np.float32, copy=False)  # np.float64 -> np.float32 to save memory
         except:
             raise Exception('Image open error {}'.format(im_id))
@@ -104,16 +105,16 @@ class FSCData(data.Dataset):
         examplars = []
         rects = rects.astype(np.int)
         for y1, x1, y2, x2 in rects:
-            # make it a square
-            max_leng = max(x2-x1, y2-y1)
-            new_x1 = x1 + (x2-x1)*0.5 - max_leng*0.5
-            new_y1 = y1 + (y2-y1)*0.5 - max_leng*0.5
-            new_x2 = new_x1 + max_leng - 1
-            new_y2 = new_y1 + max_leng - 1
-            tmp_ex = img.crop((new_x1, new_y1, new_x2, new_y2))
-            # tmp_ex = img.crop((x1, y1, x2, y2))
+            # # make it a square
+            # max_leng = max(x2-x1, y2-y1)
+            # new_x1 = x1 + (x2-x1)*0.5 - max_leng*0.5
+            # new_y1 = y1 + (y2-y1)*0.5 - max_leng*0.5
+            # new_x2 = new_x1 + max_leng - 1
+            # new_y2 = new_y1 + max_leng - 1
+            # tmp_ex = img.crop((new_x1, new_y1, new_x2, new_y2))
+            tmp_ex = img.crop((x1, y1, x2, y2))
             examplars.append(tmp_ex)
-
+        
         # rescale augmentation
         re_size = random.random() * 0.5 + 0.75
         wdd = int(wd*re_size)
@@ -140,8 +141,8 @@ class FSCData(data.Dataset):
         dmap = Image.fromarray(dmap)
 
         # return self.trans_img(img), self.trans_dmap(dmap), [self.trans_img(ex) for ex in examplars]
-        # return self.trans_img(img), self.trans_dmap(dmap), self.trans_ex(examplars[0])
-        return self.trans_img(img), self.trans_dmap(dmap), self.trans_ex(examplars[0]), self.trans_ex(examplars[1]), self.trans_ex(examplars[2])
+        return self.trans_img(img), self.trans_dmap(dmap), self.trans_ex(examplars[0])
+        # return self.trans_img(img), self.trans_dmap(dmap), self.trans_ex(examplars[0]), self.trans_ex(examplars[1]), self.trans_ex(examplars[2])
         # return img, dmap, examplars
     
     def val_transform(self, sample):
@@ -156,7 +157,7 @@ class FSCData(data.Dataset):
         img = self.trans_img(img)
         count = np.sum(dmap)
         # return img, count, [self.trans_img(ex) for ex in examplars], name
-        return img, count, self.trans_ex(examplars[0]), self.trans_ex(examplars[1]), self.trans_ex(examplars[2]), name
-        # return img, count, self.trans_ex(examplars[0]), name
+        # return img, count, self.trans_ex(examplars[0]), self.trans_ex(examplars[1]), self.trans_ex(examplars[2]), name
+        return img, count, self.trans_ex(examplars[0]), name
     
 
